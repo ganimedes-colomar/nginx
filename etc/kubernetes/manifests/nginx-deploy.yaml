@@ -19,7 +19,7 @@ spec:
             - -d
             - daemon
           command:
-            - docker-entrypoint.sh
+            - /docker-entrypoint.sh
           image: academiaonline/nginx:latest
           volumeMounts:
             -
