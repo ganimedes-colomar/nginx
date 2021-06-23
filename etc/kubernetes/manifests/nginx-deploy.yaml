@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: santander-nginx-deploy
+spec:
+  selector:
+    matchLabels:
+      app: santander-nginx
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: santander-nginx
+    spec:
+      containers:
+        - name: santander-nginx-container
+          args:
+            - nginx
+            - -d
+            - daemon
+          command:
+            - docker-entrypoint.sh
+          image: academiaonline/nginx:latest
+          volumeMounts:
+            -
+              mountPath: /etc/nginx/nginx.conf
+              name: santander-nginx-conf-volume
+              readOnly: true
+              subPath: nginx.conf
+            -
+              mountPath: /etc/nginx/conf.d/default.conf
+              name: santander-nginx-default-volume
+              readOnly: true
+              subPath: default.conf
+            -
+              mountPath: /var/cache/nginx/
+              name: santander-nginx-cache-volume
+              readOnly: false
+            -
+              mountPath: /var/run/
+              name: santander-nginx-run-volume
+              readOnly: false
+          workingDir: /
+      volumes:
+        -
+          name: santander-nginx-conf-volume
+          configMap:
+            name: santander-nginx-conf-cm
+            items:
+              -
+                key: nginx.conf
+                path: nginx.conf
+        -
+          name: santander-nginx-default-volume
+          secret:
+            secretName: santander-nginx-default-secret
+            items:
+              -
+                key: default.conf
+                path: default.conf
+        -
+          name: santander-nginx-cache-volume
+          emptyDir: {}
+        -
+          name: santander-nginx-run-volume
+          emptyDir: {}
